@@ -36,7 +36,9 @@ async def read_file(file_path: str):
 
 
 @app.get("/items/")
-async def read_items(q: Annotated[list, Query()] = []):
+async def read_items(
+    q: Annotated[str | None, Query(title="Query string", min_length=3)] = None,
+):
     results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
     if q:
         results.update({"q": q})
