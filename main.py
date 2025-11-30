@@ -1,8 +1,10 @@
+import random
+
 from enum import Enum
 
 from fastapi import FastAPI, Query
 
-from pydantic import BaseModel
+from pydantic import AfterValidator, BaseModel
 
 from typing import Annotated
 
@@ -22,6 +24,19 @@ class ModelName(str, Enum):
 
 app = FastAPI()
 
+data = {
+    "isbn-9781529046137": "The Hitchhiker's Guide to the Galaxy",
+    "imdb-tt0371724": "The Hitchhiker's Guide to the Galaxy",
+    "isbn-9781439512982": "Isaac Asimov: The Complete Stories, Vol. 2",
+}
+
+
+def check_valid_id(id: str):
+    if not id.startswith(("isbn-", "imdb-")):
+        raise ValueError('Invalid ID format, it must start with "isbn-" or "imdb-"')
+    return id
+
+
 fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
 
 
@@ -37,12 +52,13 @@ async def read_file(file_path: str):
 
 @app.get("/items/")
 async def read_items(
-    hidden_query: Annotated[str | None, Query(include_in_schema=False)] = None,
+    id: Annotated[str | None, AfterValidator(check_valid_id)] = None,
 ):
-    if hidden_query:
-        return {"hidden_query": hidden_query}
+    if id:
+        item = data.get(id)
     else:
-        return {"hidden_query": "Not found"}
+        id, item = random.choice(list(data.items()))
+    return {"id": id, "name": item}
 
 
 @app.post("/items/")
