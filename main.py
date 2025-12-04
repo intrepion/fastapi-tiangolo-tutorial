@@ -4,7 +4,7 @@ from enum import Enum
 
 from fastapi import Body, FastAPI, Path, Query
 
-from pydantic import AfterValidator, BaseModel, Field
+from pydantic import AfterValidator, BaseModel, Field, HttpUrl
 
 from typing import Annotated, List, Literal
 
@@ -18,7 +18,7 @@ class FilterParams(BaseModel):
 
 
 class Image(BaseModel):
-    url: str
+    url: HttpUrl
     name: str
 
 
