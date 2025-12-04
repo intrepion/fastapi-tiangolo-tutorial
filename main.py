@@ -4,11 +4,17 @@ import random
 from enum import Enum
 from uuid import UUID
 
-from fastapi import Body, FastAPI, Header, Path, Query
+from fastapi import Body, Cookie, FastAPI, Header, Path, Query
 
 from pydantic import AfterValidator, BaseModel, Field, HttpUrl
 
 from typing import Annotated, List, Literal
+
+
+class Cookies(BaseModel):
+    session_id: str
+    fatebook_tracker: str | None = None
+    googall_tracker: str | None = None
 
 
 class FilterParams(BaseModel):
@@ -101,8 +107,8 @@ async def create_index_weights(weights: dict[int, float]):
 
 
 @app.get("/items/")
-async def read_items(x_token: Annotated[list[str] | None, Header()] = None):
-    return {"X-Token values": x_token}
+async def read_items(cookies: Annotated[Cookies, Cookie()]):
+    return cookies
 
 
 @app.post("/items/")
