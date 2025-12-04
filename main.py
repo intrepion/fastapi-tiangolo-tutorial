@@ -77,7 +77,7 @@ async def update_item(item_id: int, item: Item):
 
 @app.get("/items/{item_id}")
 async def read_user_item(
-    q: str, item_id: Annotated[int, Path(title="The ID of the item to get")]
+    *, item_id: int = Path(title="The ID of the item to get"), q: str
 ):
     results = {"item_id": item_id}
     if q:
