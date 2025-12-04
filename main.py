@@ -23,12 +23,10 @@ class Image(BaseModel):
 
 
 class Item(BaseModel):
-    name: str
-    description: str | None = None
-    price: float
-    tax: float | None = None
-    tags: set[str] = set()
-    images: list[Image] | None = None
+    name: str = Field(examples=["Foo"])
+    description: str | None = Field(default=None, examples=["A very nice Item"])
+    price: float = Field(examples=[35.4])
+    tax: float | None = Field(default=None, examples=[3.2])
 
     model_config = {
         "json_schema_extra": {
