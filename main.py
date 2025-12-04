@@ -76,6 +76,9 @@ async def root():
 async def read_file(file_path: str):
     return {"file_path": file_path}
 
+@app.post("/images/multiple/")
+async def create_multiple_images(images: list[Image]):
+    return images
 
 @app.get("/items/")
 async def read_items(filter_query: Annotated[FilterParams, Query()]):
