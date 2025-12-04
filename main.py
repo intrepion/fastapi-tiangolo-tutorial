@@ -6,7 +6,7 @@ from fastapi import Body, FastAPI, Path, Query
 
 from pydantic import AfterValidator, BaseModel, Field
 
-from typing import Annotated, Literal
+from typing import Annotated, List, Literal
 
 
 class FilterParams(BaseModel):
@@ -24,7 +24,7 @@ class Item(BaseModel):
     )
     price: float = Field(gt=0, description="The price must be greater than zero")
     tax: float | None = None
-    tags: list = []
+    tags: List[str] = []
 
 
 class ModelName(str, Enum):
