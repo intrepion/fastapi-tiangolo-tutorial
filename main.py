@@ -24,7 +24,7 @@ class Item(BaseModel):
     )
     price: float = Field(gt=0, description="The price must be greater than zero")
     tax: float | None = None
-    tags: List[str] = []
+    tags: list[str] = []
 
 
 class ModelName(str, Enum):
