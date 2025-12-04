@@ -4,7 +4,7 @@ import random
 from enum import Enum
 from uuid import UUID
 
-from fastapi import Body, FastAPI, Path, Query
+from fastapi import Body, FastAPI, Header, Path, Query
 
 from pydantic import AfterValidator, BaseModel, Field, HttpUrl
 
@@ -101,8 +101,10 @@ async def create_index_weights(weights: dict[int, float]):
 
 
 @app.get("/items/")
-async def read_items(user_agent: Annotated[str | None, Header()] = None):
-    return {"User-Agent": user_agent}
+async def read_items(
+    strange_header: Annotated[str | None, Header(convert_underscores=False)] = None,
+):
+    return {"strange_header": strange_header}
 
 
 @app.post("/items/")
