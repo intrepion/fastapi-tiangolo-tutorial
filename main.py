@@ -30,6 +30,19 @@ class Item(BaseModel):
     tags: set[str] = set()
     images: list[Image] | None = None
 
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "name": "Foo",
+                    "description": "A very nice Item",
+                    "price": 35.4,
+                    "tax": 3.2,
+                }
+            ]
+        }
+    }
+
 
 class ModelName(str, Enum):
     alexnet = "alexnet"
