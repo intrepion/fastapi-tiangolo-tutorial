@@ -101,8 +101,8 @@ async def create_index_weights(weights: dict[int, float]):
 
 
 @app.get("/items/")
-async def read_items(filter_query: Annotated[FilterParams, Query()]):
-    return filter_query
+async def read_items(ads_id: Annotated[str | None, Cookie()] = None):
+    return {"ads_id": ads_id}
 
 
 @app.post("/items/")
