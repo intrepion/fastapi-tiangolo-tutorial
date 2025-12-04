@@ -17,14 +17,18 @@ class FilterParams(BaseModel):
     tags: list[str] = []
 
 
+class Image(BaseModel):
+    url: str
+    name: str
+
+
 class Item(BaseModel):
     name: str
-    description: str | None = Field(
-        default=None, title="The description of the item", max_length=300
-    )
-    price: float = Field(gt=0, description="The price must be greater than zero")
+    description: str | None = None
+    price: float
     tax: float | None = None
     tags: set[str] = set()
+    image: Image | None = None
 
 
 class ModelName(str, Enum):
@@ -81,7 +85,7 @@ async def create_item(item: Item):
 
 
 @app.put("/items/{item_id}")
-async def update_item(item_id: int, item: Annotated[Item, Body(embed=True)]):
+async def update_item(item_id: int, item: Item):
     results = {"item_id": item_id, "item": item}
     return results
 
