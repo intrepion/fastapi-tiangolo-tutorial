@@ -1,6 +1,8 @@
+from datetime import datetime, time, timedelta
 import random
 
 from enum import Enum
+from uuid import UUID
 
 from fastapi import Body, FastAPI, Path, Query
 
@@ -114,31 +116,23 @@ async def create_item(item: Item):
 
 @app.put("/items/{item_id}")
 async def update_item(
-    item_id: int,
-    item: Annotated[
-        Item,
-        Body(
-            examples=[
-                {
-                    "name": "Foo",
-                    "description": "A very nice Item",
-                    "price": 35.4,
-                    "tax": 3.2,
-                },
-                {
-                    "name": "Bar",
-                    "price": "35.4",
-                },
-                {
-                    "name": "Baz",
-                    "price": "thirty five point four",
-                },
-            ],
-        ),
-    ],
+    item_id: UUID,
+    start_datetime: Annotated[datetime, Body()],
+    end_datetime: Annotated[datetime, Body()],
+    process_after: Annotated[timedelta, Body()],
+    repeat_at: Annotated[time | None, Body()] = None,
 ):
-    results = {"item_id": item_id, "item": item}
-    return results
+    start_process = start_datetime + process_after
+    duration = end_datetime - start_process
+    return {
+        "item_id": item_id,
+        "start_datetime": start_datetime,
+        "end_datetime": end_datetime,
+        "process_after": process_after,
+        "repeat_at": repeat_at,
+        "start_process": start_process,
+        "duration": duration,
+    }
 
 
 @app.get("/items/{item_id}")
