@@ -37,6 +37,13 @@ class ModelName(str, Enum):
     lenet = "lenet"
 
 
+class Offer(BaseModel):
+    name: str
+    description: str | None = None
+    price: float
+    items: list[Item]
+
+
 class User(BaseModel):
     username: str
     full_name: str | None = None
@@ -114,6 +121,11 @@ async def get_model(model_name: ModelName):
         return {"model_name": model_name, "message": "LeCNN all the images"}
 
     return {"model_name": model_name, "message": "Have some residuals"}
+
+
+@app.post("/offers/")
+async def create_offer(offer: Offer):
+    return offer
 
 
 @app.get("/users/me")
