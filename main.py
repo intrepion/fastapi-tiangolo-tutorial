@@ -9,6 +9,14 @@ from pydantic import AfterValidator, BaseModel, Field
 from typing import Annotated, Literal
 
 
+class FilterParams(BaseModel):
+    model_config = {"extra": "forbid"}
+    limit: int = Field(100, gt=0, le=100)
+    offset: int = Field(0, ge=0)
+    order_by: Literal["created_at", "updated_at"] = "created_at"
+    tags: list[str] = []
+
+
 class Item(BaseModel):
     name: str
     description: str | None = None
@@ -22,15 +30,12 @@ class ModelName(str, Enum):
     lenet = "lenet"
 
 
+class User(BaseModel):
+    username: str
+    full_name: str | None = None
+
+
 app = FastAPI()
-
-
-class FilterParams(BaseModel):
-    model_config = {"extra": "forbid"}
-    limit: int = Field(100, gt=0, le=100)
-    offset: int = Field(0, ge=0)
-    order_by: Literal["created_at", "updated_at"] = "created_at"
-    tags: list[str] = []
 
 
 data = {
@@ -39,14 +44,13 @@ data = {
     "isbn-9781439512982": "Isaac Asimov: The Complete Stories, Vol. 2",
 }
 
+fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
+
 
 def check_valid_id(id: str):
     if not id.startswith(("isbn-", "imdb-")):
         raise ValueError('Invalid ID format, it must start with "isbn-" or "imdb-"')
     return id
-
-
-fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
 
 
 @app.get("/")
@@ -74,16 +78,8 @@ async def create_item(item: Item):
 
 
 @app.put("/items/{item_id}")
-async def update_item(
-    item_id: Annotated[int, Path(title="The ID of the item to get", ge=0, le=1000)],
-    q: str | None = None,
-    item: Item | None = None,
-):
-    results = {"item_id": item_id}
-    if q:
-        results.update({"q": q})
-    if item:
-        results.update({"item": item})
+async def update_item(item_id: int, item: Item, user: User):
+    results = {"item_id": item_id, "item": item, "user": user}
     return results
 
 
