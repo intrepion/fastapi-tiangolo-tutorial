@@ -4,9 +4,9 @@ from enum import Enum
 
 from fastapi import FastAPI, Path, Query
 
-from pydantic import AfterValidator, BaseModel
+from pydantic import AfterValidator, BaseModel, Field
 
-from typing import Annotated
+from typing import Annotated, Literal
 
 
 class Item(BaseModel):
@@ -23,6 +23,14 @@ class ModelName(str, Enum):
 
 
 app = FastAPI()
+
+
+class FilterParams(BaseModel):
+    limit: int = Field(100, gt=0, le=100)
+    offset: int = Field(0, ge=0)
+    order_by: Literal["created_at", "updated_at"] = "created_at"
+    tags: list[str] = []
+
 
 data = {
     "isbn-9781529046137": "The Hitchhiker's Guide to the Galaxy",
@@ -51,14 +59,8 @@ async def read_file(file_path: str):
 
 
 @app.get("/items/")
-async def read_items(
-    id: Annotated[str | None, AfterValidator(check_valid_id)] = None,
-):
-    if id:
-        item = data.get(id)
-    else:
-        id, item = random.choice(list(data.items()))
-    return {"id": id, "name": item}
+async def read_items(filter_query: Annotated[FilterParams, Query()]):
+    return filter_query
 
 
 @app.post("/items/")
