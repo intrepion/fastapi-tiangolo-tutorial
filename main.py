@@ -11,6 +11,12 @@ from pydantic import AfterValidator, BaseModel, EmailStr, Field, HttpUrl
 from typing import Annotated, Any, List, Literal
 
 
+class BaseUser(BaseModel):
+    username: str
+    email: EmailStr
+    full_name: str | None = None
+
+
 class CommonHeaders(BaseModel):
     model_config = {"extra": "forbid"}
 
@@ -80,11 +86,8 @@ class User(BaseModel):
     full_name: str | None = None
 
 
-class UserIn(BaseModel):
-    username: str
+class UserIn(BaseUser):
     password: str
-    email: EmailStr
-    full_name: str | None = None
 
 
 class UserOut(BaseModel):
@@ -196,8 +199,8 @@ async def create_offer(offer: Offer):
     return offer
 
 
-@app.post("/user/", response_model=UserOut)
-async def create_user(user: UserIn) -> Any:
+@app.post("/user/")
+async def create_user(user: UserIn) -> BaseUser:
     return user
 
 
