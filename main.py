@@ -12,6 +12,8 @@ from typing import Annotated, List, Literal
 
 
 class CommonHeaders(BaseModel):
+    model_config = {"extra": "forbid"}
+
     host: str
     save_data: bool
     if_modified_since: str | None = None
