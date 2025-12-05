@@ -6,7 +6,7 @@ from uuid import UUID
 
 from fastapi import Body, Cookie, FastAPI, Header, Path, Query
 
-from pydantic import AfterValidator, BaseModel, Field, HttpUrl
+from pydantic import AfterValidator, BaseModel, EmailStr, Field, HttpUrl
 
 from typing import Annotated, Any, List, Literal
 
@@ -77,6 +77,13 @@ class Offer(BaseModel):
 
 class User(BaseModel):
     username: str
+    full_name: str | None = None
+
+
+class UserIn(BaseModel):
+    username: str
+    password: str
+    email: EmailStr
     full_name: str | None = None
 
 
@@ -181,6 +188,12 @@ async def get_model(model_name: ModelName):
 @app.post("/offers/")
 async def create_offer(offer: Offer):
     return offer
+
+
+# Don't do this in production!
+@app.post("/userbad/")
+async def create_user(user: UserIn) -> UserIn:
+    return user
 
 
 @app.get("/users/me")
