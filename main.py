@@ -8,7 +8,7 @@ from fastapi import Body, Cookie, FastAPI, Header, Path, Query
 
 from pydantic import AfterValidator, BaseModel, Field, HttpUrl
 
-from typing import Annotated, List, Literal
+from typing import Annotated, Any, List, Literal
 
 
 class CommonHeaders(BaseModel):
@@ -118,16 +118,16 @@ async def create_index_weights(weights: dict[int, float]):
     return weights
 
 
-@app.get("/items/")
-async def read_items() -> list[Item]:
+@app.get("/items/", response_model=list[Item])
+async def read_items() -> Any:
     return [
-        Item(name="Portal Gun", price=42.0),
-        Item(name="Plumbus", price=32.0),
+        {"name": "Portal Gun", "price": 42.0},
+        {"name": "Plumbus", "price": 32.0},
     ]
 
 
-@app.post("/items/")
-async def create_item(item: Item) -> Item:
+@app.post("/items/", response_model=Item)
+async def create_item(item: Item) -> Any:
     return item
 
 
