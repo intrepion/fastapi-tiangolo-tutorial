@@ -11,6 +11,14 @@ from pydantic import AfterValidator, BaseModel, Field, HttpUrl
 from typing import Annotated, List, Literal
 
 
+class CommonHeaders(BaseModel):
+    host: str
+    save_data: bool
+    if_modified_since: str | None = None
+    traceparent: str | None = None
+    x_tag: list[str] = []
+
+
 class Cookies(BaseModel):
     model_config = {"extra": "forbid"}
 
@@ -109,8 +117,8 @@ async def create_index_weights(weights: dict[int, float]):
 
 
 @app.get("/items/")
-async def read_items(cookies: Annotated[Cookies, Cookie()]):
-    return cookies
+async def read_items(headers: Annotated[CommonHeaders, Header()]):
+    return headers
 
 
 @app.post("/items/")
