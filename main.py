@@ -207,6 +207,11 @@ async def get_portal(teleport: bool = False) -> Response:
     return JSONResponse(content={"message": "Here's your interdimensional portal."})
 
 
+@app.get("/teleport")
+async def get_teleport() -> RedirectResponse:
+    return RedirectResponse(url="https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+
+
 @app.post("/user/")
 async def create_user(user: UserIn) -> BaseUser:
     return user
