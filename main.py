@@ -200,7 +200,7 @@ async def create_offer(offer: Offer):
     return offer
 
 
-@app.get("/portal")
+@app.get("/portal", response_model=None)
 async def get_portal(teleport: bool = False) -> Response | dict:
     if teleport:
         return RedirectResponse(url="https://www.youtube.com/watch?v=dQw4w9WgXcQ")
