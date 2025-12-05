@@ -201,10 +201,10 @@ async def create_offer(offer: Offer):
 
 
 @app.get("/portal")
-async def get_portal(teleport: bool = False) -> Response:
+async def get_portal(teleport: bool = False) -> Response | dict:
     if teleport:
         return RedirectResponse(url="https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-    return JSONResponse(content={"message": "Here's your interdimensional portal."})
+    return {"message": "Here's your interdimensional portal."}
 
 
 @app.get("/teleport")
