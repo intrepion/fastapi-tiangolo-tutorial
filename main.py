@@ -119,19 +119,16 @@ async def create_index_weights(weights: dict[int, float]):
 
 
 @app.get("/items/")
-async def read_items(
-    headers: Annotated[CommonHeaders, Header(convert_underscores=False)],
-):
-    return headers
+async def read_items() -> list[Item]:
+    return [
+        Item(name="Portal Gun", price=42.0),
+        Item(name="Plumbus", price=32.0),
+    ]
 
 
 @app.post("/items/")
-async def create_item(item: Item):
-    item_model_dump = item.model_dump()
-    if item.tax is not None:
-        price_with_tax = item.price + item.tax
-        item_model_dump.update({"price_with_tax": price_with_tax})
-    return item_model_dump
+async def create_item(item: Item) -> Item:
+    return item
 
 
 @app.put("/items/{item_id}")
