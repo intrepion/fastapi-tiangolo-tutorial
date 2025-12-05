@@ -87,6 +87,12 @@ class UserIn(BaseModel):
     full_name: str | None = None
 
 
+class UserOut(BaseModel):
+    username: str
+    email: EmailStr
+    full_name: str | None = None
+
+
 app = FastAPI()
 
 
@@ -190,9 +196,8 @@ async def create_offer(offer: Offer):
     return offer
 
 
-# Don't do this in production!
-@app.post("/userbad/")
-async def create_user(user: UserIn) -> UserIn:
+@app.post("/user/", response_model=UserOut)
+async def create_user(user: UserIn) -> Any:
     return user
 
 
