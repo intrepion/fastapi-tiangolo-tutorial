@@ -119,7 +119,9 @@ async def create_index_weights(weights: dict[int, float]):
 
 
 @app.get("/items/")
-async def read_items(headers: Annotated[CommonHeaders, Header()]):
+async def read_items(
+    headers: Annotated[CommonHeaders, Header(convert_underscores=False)],
+):
     return headers
 
 
