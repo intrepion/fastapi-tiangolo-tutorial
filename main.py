@@ -4,8 +4,9 @@ import random
 from enum import Enum
 from uuid import UUID
 
-from fastapi import Body, Cookie, FastAPI, Header, Path, Query
+from fastapi import Body, Cookie, FastAPI, Header, Path, Query, Response
 
+from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import AfterValidator, BaseModel, EmailStr, Field, HttpUrl
 
 from typing import Annotated, Any, List, Literal
@@ -197,6 +198,13 @@ async def get_model(model_name: ModelName):
 @app.post("/offers/")
 async def create_offer(offer: Offer):
     return offer
+
+
+@app.get("/portal")
+async def get_portal(teleport: bool = False) -> Response:
+    if teleport:
+        return RedirectResponse(url="https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+    return JSONResponse(content={"message": "Here's your interdimensional portal."})
 
 
 @app.post("/user/")
