@@ -50,23 +50,11 @@ class Image(BaseModel):
 
 
 class Item(BaseModel):
-    name: str = Field(examples=["Foo"])
-    description: str | None = Field(default=None, examples=["A very nice Item"])
-    price: float = Field(examples=[35.4])
-    tax: float | None = Field(default=None, examples=[3.2])
-
-    model_config = {
-        "json_schema_extra": {
-            "examples": [
-                {
-                    "name": "Foo",
-                    "description": "A very nice Item",
-                    "price": 35.4,
-                    "tax": 3.2,
-                }
-            ]
-        }
-    }
+    name: str
+    description: str | None = None
+    price: float
+    tax: float = 10.5
+    tags: list[str] = []
 
 
 class ModelName(str, Enum):
@@ -108,6 +96,11 @@ data = {
 
 fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
 
+items = {
+    "foo": {"name": "Foo", "price": 50.2},
+    "bar": {"name": "Bar", "description": "The bartenders", "price": 62, "tax": 20.2},
+    "baz": {"name": "Baz", "description": None, "price": 50.2, "tax": 10.5, "tags": []},
+}
 
 def check_valid_id(id: str):
     if not id.startswith(("isbn-", "imdb-")):
@@ -169,19 +162,9 @@ async def update_item(
     }
 
 
-@app.get("/items/{item_id}")
-async def read_user_item(
-    *,
-    item_id: Annotated[int, Path(title="The ID of the item to get", ge=0, le=1000)],
-    q: str,
-    size: Annotated[float, Query(gt=0, lt=10.5)],
-):
-    results = {"item_id": item_id}
-    if q:
-        results.update({"q": q})
-    if size:
-        results.update({"size": size})
-    return results
+@app.get("/items/{item_id}", response_model=Item, response_model_exclude_unset=True)
+async def read_item(item_id: str):
+    return items[item_id]
 
 
 @app.get("/models/{model_name}")
