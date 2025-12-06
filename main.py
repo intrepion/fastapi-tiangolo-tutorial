@@ -58,6 +58,11 @@ class FilterParams(BaseModel):
     tags: list[str] = []
 
 
+class FormData(BaseModel):
+    username: str
+    password: str
+
+
 class Image(BaseModel):
     url: HttpUrl
     name: str
@@ -223,8 +228,8 @@ async def read_keyword_weights():
 
 
 @app.post("/login/")
-async def login(username: Annotated[str, Form()], password: Annotated[str, Form()]):
-    return {"username": username}
+async def login(data: Annotated[FormData, Form()]):
+    return data
 
 
 @app.get("/models/{model_name}")
