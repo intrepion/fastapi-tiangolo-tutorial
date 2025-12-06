@@ -74,12 +74,22 @@ class User(BaseModel):
     full_name: str | None = None
 
 
-class UserIn(BaseUser):
+class UserIn(BaseModel):
+    username: str
     password: str
+    email: EmailStr
+    full_name: str | None = None
 
 
 class UserOut(BaseModel):
     username: str
+    email: EmailStr
+    full_name: str | None = None
+
+
+class UserInDB(BaseModel):
+    username: str
+    hashed_password: str
     email: EmailStr
     full_name: str | None = None
 
@@ -111,6 +121,17 @@ def check_valid_id(id: str):
     if not id.startswith(("isbn-", "imdb-")):
         raise ValueError('Invalid ID format, it must start with "isbn-" or "imdb-"')
     return id
+
+
+def fake_password_hasher(raw_password: str):
+    return "supersecret" + raw_password
+
+
+def fake_save_user(user_in: UserIn):
+    hashed_password = fake_password_hasher(user_in.password)
+    user_in_db = UserInDB(**user_in.model_dump(), hashed_password=hashed_password)
+    print("User saved! ..not really")
+    return user_in_db
 
 
 @app.get("/")
@@ -214,9 +235,10 @@ async def get_teleport() -> RedirectResponse:
     return RedirectResponse(url="https://www.youtube.com/watch?v=dQw4w9WgXcQ")
 
 
-@app.post("/user/")
-async def create_user(user: UserIn) -> BaseUser:
-    return user
+@app.post("/user/", response_model=UserOut)
+async def create_user(user_in: UserIn):
+    user_saved = fake_save_user(user_in)
+    return user_saved
 
 
 @app.get("/users/me")
