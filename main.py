@@ -4,7 +4,7 @@ import random
 from enum import Enum
 from uuid import UUID
 
-from fastapi import Body, Cookie, FastAPI, Header, Path, Query, Response, status
+from fastapi import Body, Cookie, FastAPI, Form, Header, Path, Query, Response, status
 
 from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import AfterValidator, BaseModel, EmailStr, Field, HttpUrl
@@ -220,6 +220,11 @@ async def read_item_public_data(item_id: str):
 @app.get("/keyword-weights/", response_model=dict[str, float])
 async def read_keyword_weights():
     return {"foo": 2.3, "bar": 3.4}
+
+
+@app.post("/login/")
+async def login(username: Annotated[str, Form()], password: Annotated[str, Form()]):
+    return {"username": username}
 
 
 @app.get("/models/{model_name}")
