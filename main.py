@@ -9,7 +9,21 @@ from fastapi import Body, Cookie, FastAPI, Header, Path, Query, Response
 from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import AfterValidator, BaseModel, EmailStr, Field, HttpUrl
 
-from typing import Annotated, Any, List, Literal
+from typing import Annotated, Any, List, Literal, Union
+
+
+class BaseItem(BaseModel):
+    description: str
+    type: str
+
+
+class CarItem(BaseItem):
+    type: str = "car"
+
+
+class PlaneItem(BaseItem):
+    type: str = "plane"
+    size: int
 
 
 class BaseUser(BaseModel):
@@ -104,13 +118,11 @@ data = {
 fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
 
 items = {
-    "foo": {"name": "Foo", "price": 50.2},
-    "bar": {"name": "Bar", "description": "The Bar fighters", "price": 62, "tax": 20.2},
-    "baz": {
-        "name": "Baz",
-        "description": "There goes my baz",
-        "price": 50.2,
-        "tax": 10.5,
+    "item1": {"description": "All my friends drive a low rider", "type": "car"},
+    "item2": {
+        "description": "Music is my aeroplane, it's my aeroplane",
+        "type": "plane",
+        "size": 5,
     },
 }
 
@@ -186,7 +198,7 @@ async def update_item(
     }
 
 
-@app.get("/items/{item_id}", response_model=Item, response_model_exclude_unset=True)
+@app.get("/items/{item_id}", response_model=Union[PlaneItem, CarItem])
 async def read_item(item_id: str):
     return items[item_id]
 
