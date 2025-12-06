@@ -61,6 +61,7 @@ class FilterParams(BaseModel):
 class FormData(BaseModel):
     username: str
     password: str
+    model_config = {"extra": "forbid"}
 
 
 class Image(BaseModel):
