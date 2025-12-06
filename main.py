@@ -4,7 +4,7 @@ import random
 from enum import Enum
 from uuid import UUID
 
-from fastapi import Body, Cookie, FastAPI, Header, Path, Query, Response
+from fastapi import Body, Cookie, FastAPI, Header, Path, Query, Response, status
 
 from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import AfterValidator, BaseModel, EmailStr, Field, HttpUrl
@@ -172,7 +172,7 @@ async def read_items() -> Any:
     ]
 
 
-@app.post("/items/", status_code=201)
+@app.post("/items/", status_code=status.HTTP_201_CREATED)
 async def create_item(name: str):
     return {"name": name}
 
