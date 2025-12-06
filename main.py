@@ -172,9 +172,9 @@ async def read_items() -> Any:
     ]
 
 
-@app.post("/items/", response_model=Item)
-async def create_item(item: Item) -> Any:
-    return item
+@app.post("/items/", status_code=201)
+async def create_item(name: str):
+    return {"name": name}
 
 
 @app.put("/items/{item_id}")
