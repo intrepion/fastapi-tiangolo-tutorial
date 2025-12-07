@@ -10,6 +10,7 @@ from fastapi import (
     FastAPI,
     File,
     Form,
+    HTTPException,
     Header,
     Path,
     Query,
@@ -135,14 +136,7 @@ data = {
 
 fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
 
-items = {
-    "item1": {"description": "All my friends drive a low rider", "type": "car"},
-    "item2": {
-        "description": "Music is my aeroplane, it's my aeroplane",
-        "type": "plane",
-        "size": 5,
-    },
-}
+items = {"foo": "The Foo Wrestlers"}
 
 
 def check_valid_id(id: str):
@@ -241,9 +235,11 @@ async def update_item(
     }
 
 
-@app.get("/items/{item_id}", response_model=Union[PlaneItem, CarItem])
+@app.get("/items/{item_id}")
 async def read_item(item_id: str):
-    return items[item_id]
+    if item_id not in items:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return {"item": items[item_id]}
 
 
 @app.get(
