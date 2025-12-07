@@ -20,6 +20,7 @@ from fastapi import (
     status,
 )
 
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import (
     HTMLResponse,
@@ -90,10 +91,8 @@ class Image(BaseModel):
 
 
 class Item(BaseModel):
-    name: str
-    description: str | None = None
-    price: float
-    tax: float = 10.5
+    title: str
+    size: int
 
 
 class ModelName(str, Enum):
@@ -174,8 +173,11 @@ async def http_exception_handler(request, exc):
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc):
-    return PlainTextResponse(str(exc), status_code=400)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content=jsonable_encoder({"detail": exc.errors(), "body": exc.body}),
+    )
 
 
 @app.get("/")
