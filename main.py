@@ -236,9 +236,9 @@ async def read_items() -> Any:
     ]
 
 
-@app.post("/items/", status_code=status.HTTP_201_CREATED)
-async def create_item(name: str):
-    return {"name": name}
+@app.post("/items/", response_model=Item, status_code=status.HTTP_201_CREATED)
+async def create_item(item: Item):
+    return item
 
 
 @app.put("/items/{item_id}")
