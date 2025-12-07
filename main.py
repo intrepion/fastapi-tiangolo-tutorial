@@ -278,6 +278,11 @@ async def get_teleport() -> RedirectResponse:
     return RedirectResponse(url="https://www.youtube.com/watch?v=dQw4w9WgXcQ")
 
 
+@app.post("/uploadfile/")
+async def create_upload_file(file: UploadFile):
+    return {"filename": file.filename}
+
+
 @app.post("/user/", response_model=UserOut)
 async def create_user(user_in: UserIn):
     user_saved = fake_save_user(user_in)
