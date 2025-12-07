@@ -258,10 +258,10 @@ async def update_item(
 
 
 @app.get("/items/{item_id}")
-async def read_item(item_id: str):
-    if item_id not in items:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return {"item": items[item_id]}
+async def read_item(item_id: int):
+    if item_id == 3:
+        raise HTTPException(status_code=418, detail="Nope! I don't like 3.")
+    return {"item_id": item_id}
 
 
 @app.get(
