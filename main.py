@@ -18,7 +18,7 @@ from fastapi import (
     status,
 )
 
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from pydantic import AfterValidator, BaseModel, EmailStr, Field, HttpUrl
 
 from typing import Annotated, Any, List, Literal, Union
@@ -163,13 +163,25 @@ def fake_save_user(user_in: UserIn):
 
 
 @app.get("/")
-async def root():
-    return {"message": "Hello World"}
+async def main():
+    content = """
+<body>
+<form action="/files/" enctype="multipart/form-data" method="post">
+<input name="files" type="file" multiple>
+<input type="submit">
+</form>
+<form action="/uploadfiles/" enctype="multipart/form-data" method="post">
+<input name="files" type="file" multiple>
+<input type="submit">
+</form>
+</body>
+    """
+    return HTMLResponse(content=content)
 
 
 @app.post("/files/")
-async def create_file(file: Annotated[bytes, File(description="A file read as bytes")]):
-    return {"file_size": len(file)}
+async def create_files(files: Annotated[list[bytes], File()]):
+    return {"file_sizes": [len(file) for file in files]}
 
 
 @app.get("/files/{file_path:path}")
@@ -283,6 +295,11 @@ async def create_upload_file(
     file: Annotated[UploadFile, File(description="A file read as UploadFile")],
 ):
     return {"filename": file.filename}
+
+
+@app.post("/uploadfiles/")
+async def create_upload_files(files: list[UploadFile]):
+    return {"filenames": [file.filename for file in files]}
 
 
 @app.post("/user/", response_model=UserOut)
