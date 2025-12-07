@@ -20,9 +20,15 @@ from fastapi import (
     status,
 )
 
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import (
+    HTMLResponse,
+    JSONResponse,
+    PlainTextResponse,
+    RedirectResponse,
+)
 from pydantic import AfterValidator, BaseModel, EmailStr, Field, HttpUrl
-
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from typing import Annotated, Any, List, Literal, Union
 
 
@@ -162,12 +168,14 @@ def fake_save_user(user_in: UserIn):
     return user_in_db
 
 
-@app.exception_handler(UnicornException)
-async def unicorn_exception_handler(request: Request, exc: UnicornException):
-    return JSONResponse(
-        status_code=418,
-        content={"message": f"Oops! {exc.name} did something. There goes a rainbow..."},
-    )
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request, exc):
+    return PlainTextResponse(str(exc.detail), status_code=exc.status_code)
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    return PlainTextResponse(str(exc), status_code=400)
 
 
 @app.get("/")
