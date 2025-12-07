@@ -180,10 +180,16 @@ async def main():
 
 
 @app.post("/files/")
-async def create_files(
-    files: Annotated[list[bytes], File(description="Multiple files as bytes")],
+async def create_file(
+    file: Annotated[bytes, File()],
+    fileb: Annotated[UploadFile, File()],
+    token: Annotated[str, Form()],
 ):
-    return {"file_sizes": [len(file) for file in files]}
+    return {
+        "file_size": len(file),
+        "token": token,
+        "fileb_content_type": fileb.content_type,
+    }
 
 
 @app.get("/files/{file_path:path}")
