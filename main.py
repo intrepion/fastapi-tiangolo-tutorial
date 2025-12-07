@@ -14,6 +14,7 @@ from fastapi import (
     Header,
     Path,
     Query,
+    Request,
     Response,
     UploadFile,
     status,
@@ -102,6 +103,11 @@ class Offer(BaseModel):
     items: list[Item]
 
 
+class UnicornException(Exception):
+    def __init__(self, name: str):
+        self.name = name
+
+
 class User(BaseModel):
     username: str
     full_name: str | None = None
@@ -154,6 +160,14 @@ def fake_save_user(user_in: UserIn):
     user_in_db = UserInDB(**user_in.model_dump(), hashed_password=hashed_password)
     print("User saved! ..not really")
     return user_in_db
+
+
+@app.exception_handler(UnicornException)
+async def unicorn_exception_handler(request: Request, exc: UnicornException):
+    return JSONResponse(
+        status_code=418,
+        content={"message": f"Oops! {exc.name} did something. There goes a rainbow..."},
+    )
 
 
 @app.get("/")
@@ -303,6 +317,13 @@ async def get_portal(teleport: bool = False) -> Response | dict:
 @app.get("/teleport")
 async def get_teleport() -> RedirectResponse:
     return RedirectResponse(url="https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+
+
+@app.get("/unicorns/{name}")
+async def read_unicorn(name: str):
+    if name == "yolo":
+        raise UnicornException(name=name)
+    return {"unicorn_name": name}
 
 
 @app.post("/uploadfile/")
