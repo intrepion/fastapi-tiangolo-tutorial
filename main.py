@@ -4,7 +4,19 @@ import random
 from enum import Enum
 from uuid import UUID
 
-from fastapi import Body, Cookie, FastAPI, Form, Header, Path, Query, Response, status
+from fastapi import (
+    Body,
+    Cookie,
+    FastAPI,
+    File,
+    Form,
+    Header,
+    Path,
+    Query,
+    Response,
+    UploadFile,
+    status,
+)
 
 from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import AfterValidator, BaseModel, EmailStr, Field, HttpUrl
