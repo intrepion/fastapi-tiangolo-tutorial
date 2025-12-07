@@ -256,6 +256,17 @@ async def read_item_public_data(item_id: str):
     return items[item_id]
 
 
+@app.get("/items-header/{item_id}")
+async def read_item_header(item_id: str):
+    if item_id not in items:
+        raise HTTPException(
+            status_code=404,
+            detail="Item not found",
+            headers={"X-Error": "There goes my error"},
+        )
+    return {"item": items[item_id]}
+
+
 @app.get("/keyword-weights/", response_model=dict[str, float])
 async def read_keyword_weights():
     return {"foo": 2.3, "bar": 3.4}
