@@ -7,6 +7,7 @@ from uuid import UUID
 from fastapi import (
     Body,
     Cookie,
+    Depends,
     FastAPI,
     File,
     Form,
@@ -174,6 +175,10 @@ def check_valid_id(id: str):
     return id
 
 
+async def common_parameters(q: str | None = None, skip: int = 0, limit: int = 100):
+    return {"q": q, "skip": skip, "limit": limit}
+
+
 def fake_password_hasher(raw_password: str):
     return "supersecret" + raw_password
 
@@ -247,9 +252,9 @@ async def create_index_weights(weights: dict[int, float]):
     return weights
 
 
-@app.get("/items/", tags=[Tags.items])
-async def get_items():
-    return ["Portal gun", "Plumbus"]
+@app.get("/items/")
+async def read_items(commons: Annotated[dict, Depends(common_parameters)]):
+    return commons
 
 
 @app.post(
@@ -385,9 +390,9 @@ async def create_user(user_in: UserIn):
     return user_saved
 
 
-@app.get("/users/", tags=[Tags.users])
-async def read_users():
-    return ["Rick", "Morty"]
+@app.get("/users/")
+async def read_users(commons: Annotated[dict, Depends(common_parameters)]):
+    return commons
 
 
 @app.get("/users/me")
