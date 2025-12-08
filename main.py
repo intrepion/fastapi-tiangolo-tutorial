@@ -207,9 +207,8 @@ def fake_save_user(user_in: UserIn):
 def get_username():
     try:
         yield "Rick"
-    except InternalError:
-        print("We don't swallow the internal error here, we raise again 😎")
-        raise
+    finally:
+        print("Cleanup up before response is sent")
 
 
 def query_extractor(q: str | None = None):
@@ -460,8 +459,8 @@ async def read_users():
 
 
 @app.get("/users/me")
-async def read_user_me():
-    return {"user_id": "the current user"}
+def get_user_me(username: Annotated[str, Depends(get_username, scope="function")]):
+    return username
 
 
 @app.get("/users/{user_id}")
