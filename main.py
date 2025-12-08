@@ -213,6 +213,17 @@ def query_or_cookie_extractor(
     return q
 
 
+async def verify_key(x_key: Annotated[str, Header()]):
+    if x_key != "fake-super-secret-key":
+        raise HTTPException(status_code=400, detail="X-Key header invalid")
+    return x_key
+
+
+async def verify_token(x_token: Annotated[str, Header()]):
+    if x_token != "fake-super-secret-token":
+        raise HTTPException(status_code=400, detail="X-Token header invalid")
+
+
 @app.exception_handler(StarletteHTTPException)
 async def custom_http_exception_handler(request, exc):
     print(f"OMG! An HTTP error!: {repr(exc)}")
@@ -275,11 +286,9 @@ async def create_index_weights(weights: dict[int, float]):
     return weights
 
 
-@app.get("/items/")
-async def read_query(
-    query_or_default: Annotated[str, Depends(query_or_cookie_extractor)],
-):
-    return {"q_or_cookie": query_or_default}
+@app.get("/items/", dependencies=[Depends(verify_token), Depends(verify_key)])
+async def read_items():
+    return [{"item": "Foo"}, {"item": "Bar"}]
 
 
 @app.post(
