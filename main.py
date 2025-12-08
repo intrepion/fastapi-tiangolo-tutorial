@@ -156,7 +156,7 @@ data = {
     "imdb-tt0371724": "The Hitchhiker's Guide to the Galaxy",
     "isbn-9781439512982": "Isaac Asimov: The Complete Stories, Vol. 2",
 }
-
+fake_db = {}
 fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
 
 items = {"foo": "The Foo Wrestlers"}
@@ -272,25 +272,10 @@ async def read_item(item_id: int):
     return {"item_id": item_id}
 
 
-@app.put("/items/{item_id}")
-async def update_item(
-    item_id: UUID,
-    start_datetime: Annotated[datetime, Body()],
-    end_datetime: Annotated[datetime, Body()],
-    process_after: Annotated[timedelta, Body()],
-    repeat_at: Annotated[time | None, Body()] = None,
-):
-    start_process = start_datetime + process_after
-    duration = end_datetime - start_process
-    return {
-        "item_id": item_id,
-        "start_datetime": start_datetime,
-        "end_datetime": end_datetime,
-        "process_after": process_after,
-        "repeat_at": repeat_at,
-        "start_process": start_process,
-        "duration": duration,
-    }
+@app.put("/items/{id}")
+def update_item(id: str, item: Item):
+    json_compatible_item_data = jsonable_encoder(item)
+    fake_db[id] = json_compatible_item_data
 
 
 @app.get(
