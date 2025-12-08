@@ -156,9 +156,6 @@ class UserInDB(UserBase):
     hashed_password: str
 
 
-app = FastAPI()
-
-
 data = {
     "isbn-9781529046137": "The Hitchhiker's Guide to the Galaxy",
     "imdb-tt0371724": "The Hitchhiker's Guide to the Galaxy",
@@ -224,6 +221,9 @@ async def verify_token(x_token: Annotated[str, Header()]):
         raise HTTPException(status_code=400, detail="X-Token header invalid")
 
 
+app = FastAPI(dependencies=[Depends(verify_token), Depends(verify_key)])
+
+
 @app.exception_handler(StarletteHTTPException)
 async def custom_http_exception_handler(request, exc):
     print(f"OMG! An HTTP error!: {repr(exc)}")
@@ -286,9 +286,9 @@ async def create_index_weights(weights: dict[int, float]):
     return weights
 
 
-@app.get("/items/", dependencies=[Depends(verify_token), Depends(verify_key)])
+@app.get("/items/")
 async def read_items():
-    return [{"item": "Foo"}, {"item": "Bar"}]
+    return [{"item": "Portal Gun"}, {"item": "Plumbus"}]
 
 
 @app.post(
@@ -427,8 +427,8 @@ async def create_user(user_in: UserIn):
 
 
 @app.get("/users/")
-async def read_users(commons: CommonsDep):
-    return commons
+async def read_users():
+    return [{"username": "Rick"}, {"username": "Morty"}]
 
 
 @app.get("/users/me")
