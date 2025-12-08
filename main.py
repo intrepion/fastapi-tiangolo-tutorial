@@ -118,6 +118,10 @@ class Offer(BaseModel):
     items: list[Item]
 
 
+class OwnerError(Exception):
+    pass
+
+
 class PlaneItem(BaseItem):
     type: str = "plane"
     size: int
@@ -157,9 +161,8 @@ class UserInDB(UserBase):
 
 
 data = {
-    "isbn-9781529046137": "The Hitchhiker's Guide to the Galaxy",
-    "imdb-tt0371724": "The Hitchhiker's Guide to the Galaxy",
-    "isbn-9781439512982": "Isaac Asimov: The Complete Stories, Vol. 2",
+    "plumbus": {"description": "Freshly pickled plumbus", "owner": "Morty"},
+    "portal-gun": {"description": "Gun to create portals", "owner": "Rick"},
 }
 
 fake_db = {}
@@ -195,6 +198,13 @@ def fake_save_user(user_in: UserIn):
     user_in_db = UserInDB(**user_in.model_dump(), hashed_password=hashed_password)
     print("User saved! ..not really")
     return user_in_db
+
+
+def get_username():
+    try:
+        yield "Rick"
+    except OwnerError as e:
+        raise HTTPException(status_code=400, detail=f"Owner error: {e}")
 
 
 def query_extractor(q: str | None = None):
@@ -315,6 +325,16 @@ async def read_query(
     query_or_default: Annotated[str, Depends(query_or_cookie_extractor)],
 ):
     return {"q_or_cookie": query_or_default}
+
+
+@app.get("/items/{item_id}")
+def get_item(item_id: str, username: Annotated[str, Depends(get_username)]):
+    if item_id not in data:
+        raise HTTPException(status_code=404, detail="Item not found")
+    item = data[item_id]
+    if item["owner"] != username:
+        raise OwnerError(username)
+    return item
 
 
 @app.patch("/items/{item_id}", response_model=Item)
