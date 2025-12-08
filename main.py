@@ -95,8 +95,11 @@ class Image(BaseModel):
 
 
 class Item(BaseModel):
-    title: str
-    size: int
+    name: str
+    description: str | None = None
+    price: float
+    tax: float | None = None
+    tags: set[str] = set()
 
 
 class ModelName(str, Enum):
@@ -228,15 +231,12 @@ async def create_index_weights(weights: dict[int, float]):
     return weights
 
 
-@app.get("/items/", response_model=list[Item])
-async def read_items() -> Any:
-    return [
-        {"name": "Portal Gun", "price": 42.0},
-        {"name": "Plumbus", "price": 32.0},
-    ]
+@app.get("/items/", tags=["items"])
+async def read_items():
+    return [{"name": "Foo", "price": 42}]
 
 
-@app.post("/items/", response_model=Item, status_code=status.HTTP_201_CREATED)
+@app.post("/items/", response_model=Item, tags=["items"])
 async def create_item(item: Item):
     return item
 
@@ -359,6 +359,11 @@ async def create_upload_files(
 async def create_user(user_in: UserIn):
     user_saved = fake_save_user(user_in)
     return user_saved
+
+
+@app.get("/users/", tags=["users"])
+async def read_users():
+    return [{"username": "johndoe"}]
 
 
 @app.get("/users/me")
