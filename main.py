@@ -144,7 +144,9 @@ class UnicornException(Exception):
 
 class User(BaseModel):
     username: str
+    email: str | None = None
     full_name: str | None = None
+    disabled: bool | None = None
 
 
 class UserBase(BaseModel):
@@ -196,6 +198,12 @@ async def common_parameters(q: str | None = None, skip: int = 0, limit: int = 10
 CommonsDep = Annotated[dict, Depends(common_parameters)]
 
 
+def fake_decode_token(token):
+    return User(
+        username=token + "fakedecoded", email="john@example.com", full_name="John Doe"
+    )
+
+
 def fake_password_hasher(raw_password: str):
     return "supersecret" + raw_password
 
@@ -205,6 +213,11 @@ def fake_save_user(user_in: UserIn):
     user_in_db = UserInDB(**user_in.model_dump(), hashed_password=hashed_password)
     print("User saved! ..not really")
     return user_in_db
+
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    user = fake_decode_token(token)
+    return user
 
 
 def get_username():
@@ -460,8 +473,8 @@ async def read_users():
 
 
 @app.get("/users/me")
-def get_user_me(username: Annotated[str, Depends(get_username, scope="function")]):
-    return username
+async def read_users_me(current_user: Annotated[User, Depends(get_current_user)]):
+    return current_user
 
 
 @app.get("/users/{user_id}")
