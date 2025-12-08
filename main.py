@@ -90,11 +90,11 @@ class Image(BaseModel):
 
 
 class Item(BaseModel):
-    name: str
+    name: str | None = None
     description: str | None = None
-    price: float
-    tax: float | None = None
-    tags: set[str] = set()
+    price: float | None = None
+    tax: float = 10.5
+    tags: list[str] = []
 
 
 class ModelName(str, Enum):
@@ -158,8 +158,11 @@ data = {
 }
 fake_db = {}
 fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
-
-items = {"foo": "The Foo Wrestlers"}
+items = {
+    "foo": {"name": "Foo", "price": 50.2},
+    "bar": {"name": "Bar", "description": "The bartenders", "price": 62, "tax": 20.2},
+    "baz": {"name": "Baz", "description": None, "price": 50.2, "tax": 10.5, "tags": []},
+}
 
 
 def check_valid_id(id: str):
@@ -265,17 +268,16 @@ async def create_item(item: Item):
     return item
 
 
-@app.get("/items/{item_id}")
-async def read_item(item_id: int):
-    if item_id == 3:
-        raise HTTPException(status_code=418, detail="Nope! I don't like 3.")
-    return {"item_id": item_id}
+@app.get("/items/{item_id}", response_model=Item)
+async def read_item(item_id: str):
+    return items[item_id]
 
 
-@app.put("/items/{id}")
-def update_item(id: str, item: Item):
-    json_compatible_item_data = jsonable_encoder(item)
-    fake_db[id] = json_compatible_item_data
+@app.put("/items/{item_id}", response_model=Item)
+async def update_item(item_id: str, item: Item):
+    update_item_encoded = jsonable_encoder(item)
+    items[item_id] = update_item_encoded
+    return update_item_encoded
 
 
 @app.get(
