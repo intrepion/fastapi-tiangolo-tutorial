@@ -263,7 +263,7 @@ async def create_index_weights(weights: dict[int, float]):
 
 
 @app.get("/items/")
-async def read_items(commons: Annotated[Any, Depends(CommonQueryParams)]):
+async def read_items(commons: Annotated[CommonQueryParams, Depends()]):
     response = {}
     if commons.q:
         response.update({"q": commons.q})
