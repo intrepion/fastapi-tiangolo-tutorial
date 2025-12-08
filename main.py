@@ -208,6 +208,11 @@ async def main():
     return HTMLResponse(content=content)
 
 
+@app.get("/elements/", tags=["items"], deprecated=True)
+async def read_elements():
+    return [{"item_id": "Foo"}]
+
+
 @app.post("/files/")
 async def create_file(
     file: Annotated[bytes, File()],
