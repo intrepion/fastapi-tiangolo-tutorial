@@ -42,19 +42,14 @@ class BaseItem(BaseModel):
     type: str
 
 
-class CarItem(BaseItem):
-    type: str = "car"
-
-
-class PlaneItem(BaseItem):
-    type: str = "plane"
-    size: int
-
-
 class BaseUser(BaseModel):
     username: str
     email: EmailStr
     full_name: str | None = None
+
+
+class CarItem(BaseItem):
+    type: str = "car"
 
 
 class CommonHeaders(BaseModel):
@@ -113,6 +108,16 @@ class Offer(BaseModel):
     description: str | None = None
     price: float
     items: list[Item]
+
+
+class PlaneItem(BaseItem):
+    type: str = "plane"
+    size: int
+
+
+class Tags(Enum):
+    items = "items"
+    users = "users"
 
 
 class UnicornException(Exception):
@@ -231,14 +236,21 @@ async def create_index_weights(weights: dict[int, float]):
     return weights
 
 
-@app.get("/items/", tags=["items"])
-async def read_items():
-    return [{"name": "Foo", "price": 42}]
+@app.get("/items/", tags=[Tags.items])
+async def get_items():
+    return ["Portal gun", "Plumbus"]
 
 
 @app.post("/items/", response_model=Item, tags=["items"])
 async def create_item(item: Item):
     return item
+
+
+@app.get("/items/{item_id}")
+async def read_item(item_id: int):
+    if item_id == 3:
+        raise HTTPException(status_code=418, detail="Nope! I don't like 3.")
+    return {"item_id": item_id}
 
 
 @app.put("/items/{item_id}")
@@ -260,13 +272,6 @@ async def update_item(
         "start_process": start_process,
         "duration": duration,
     }
-
-
-@app.get("/items/{item_id}")
-async def read_item(item_id: int):
-    if item_id == 3:
-        raise HTTPException(status_code=418, detail="Nope! I don't like 3.")
-    return {"item_id": item_id}
 
 
 @app.get(
@@ -361,9 +366,9 @@ async def create_user(user_in: UserIn):
     return user_saved
 
 
-@app.get("/users/", tags=["users"])
+@app.get("/users/", tags=[Tags.users])
 async def read_users():
-    return [{"username": "johndoe"}]
+    return ["Rick", "Morty"]
 
 
 @app.get("/users/me")
