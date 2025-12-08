@@ -195,7 +195,9 @@ async def common_parameters(q: str | None = None, skip: int = 0, limit: int = 10
     return {"q": q, "skip": skip, "limit": limit}
 
 
-CommonsDep = Annotated[dict, Depends(common_parameters)]
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    user = fake_decode_token(token)
+    return user
 
 
 def fake_decode_token(token):
@@ -250,6 +252,8 @@ async def verify_token(x_token: Annotated[str, Header()]):
     if x_token != "fake-super-secret-token":
         raise HTTPException(status_code=400, detail="X-Token header invalid")
 
+
+CommonsDep = Annotated[dict, Depends(common_parameters)]
 
 app = FastAPI(dependencies=[Depends(verify_token), Depends(verify_key)])
 
