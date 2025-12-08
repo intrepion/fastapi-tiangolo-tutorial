@@ -33,6 +33,7 @@ from fastapi.responses import (
     PlainTextResponse,
     RedirectResponse,
 )
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import AfterValidator, BaseModel, EmailStr, Field, HttpUrl
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from typing import Annotated, Any, List, Literal, Union
@@ -178,6 +179,8 @@ items = {
     "bar": {"name": "Bar", "description": "The bartenders", "price": 62, "tax": 20.2},
     "baz": {"name": "Baz", "description": None, "price": 50.2, "tax": 10.5, "tags": []},
 }
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def check_valid_id(id: str):
@@ -325,10 +328,8 @@ async def create_item(item: Item):
 
 
 @app.get("/items/")
-async def read_query(
-    query_or_default: Annotated[str, Depends(query_or_cookie_extractor)],
-):
-    return {"q_or_cookie": query_or_default}
+async def read_items(token: Annotated[str, Depends(oauth2_scheme)]):
+    return {"token": token}
 
 
 @app.get("/items/{item_id}")
