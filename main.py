@@ -63,6 +63,13 @@ class CommonHeaders(BaseModel):
     x_tag: list[str] = []
 
 
+class CommonQueryParams:
+    def __init__(self, q: str | None = None, skip: int = 0, limit: int = 100):
+        self.q = q
+        self.skip = skip
+        self.limit = limit
+
+
 class Cookies(BaseModel):
     model_config = {"extra": "forbid"}
 
@@ -256,8 +263,13 @@ async def create_index_weights(weights: dict[int, float]):
 
 
 @app.get("/items/")
-async def read_items(commons: CommonsDep):
-    return commons
+async def read_items(commons: Annotated[CommonQueryParams, Depends(CommonQueryParams)]):
+    response = {}
+    if commons.q:
+        response.update({"q": commons.q})
+    items = fake_items_db[commons.skip : commons.skip + commons.limit]
+    response.update({"items": items})
+    return response
 
 
 @app.post(
