@@ -156,8 +156,11 @@ data = {
     "imdb-tt0371724": "The Hitchhiker's Guide to the Galaxy",
     "isbn-9781439512982": "Isaac Asimov: The Complete Stories, Vol. 2",
 }
+
 fake_db = {}
+
 fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
+
 items = {
     "foo": {"name": "Foo", "price": 50.2},
     "bar": {"name": "Bar", "description": "The bartenders", "price": 62, "tax": 20.2},
@@ -271,6 +274,16 @@ async def create_item(item: Item):
 @app.get("/items/{item_id}", response_model=Item)
 async def read_item(item_id: str):
     return items[item_id]
+
+
+@app.patch("/items/{item_id}", response_model=Item)
+async def update_item(item_id: str, item: Item):
+    stored_item_data = items[item_id]
+    stored_item_model = Item(**stored_item_data)
+    update_data = item.model_dump(exclude_unset=True)
+    updated_item = stored_item_model.model_copy(update=update_data)
+    items[item_id] = jsonable_encoder(updated_item)
+    return updated_item
 
 
 @app.put("/items/{item_id}", response_model=Item)
