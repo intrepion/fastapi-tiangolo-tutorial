@@ -200,6 +200,19 @@ def fake_save_user(user_in: UserIn):
     return user_in_db
 
 
+def query_extractor(q: str | None = None):
+    return q
+
+
+def query_or_cookie_extractor(
+    q: Annotated[str, Depends(query_extractor)],
+    last_query: Annotated[str | None, Cookie()] = None,
+):
+    if not q:
+        return last_query
+    return q
+
+
 @app.exception_handler(StarletteHTTPException)
 async def custom_http_exception_handler(request, exc):
     print(f"OMG! An HTTP error!: {repr(exc)}")
@@ -263,13 +276,10 @@ async def create_index_weights(weights: dict[int, float]):
 
 
 @app.get("/items/")
-async def read_items(commons: Annotated[CommonQueryParams, Depends()]):
-    response = {}
-    if commons.q:
-        response.update({"q": commons.q})
-    items = fake_items_db[commons.skip : commons.skip + commons.limit]
-    response.update({"items": items})
-    return response
+async def read_query(
+    query_or_default: Annotated[str, Depends(query_or_cookie_extractor)],
+):
+    return {"q_or_cookie": query_or_default}
 
 
 @app.post(
@@ -291,9 +301,11 @@ async def create_item(item: Item):
     return item
 
 
-@app.get("/items/{item_id}", response_model=Item)
-async def read_item(item_id: str):
-    return items[item_id]
+@app.get("/items/")
+async def read_query(
+    query_or_default: Annotated[str, Depends(query_or_cookie_extractor)],
+):
+    return {"q_or_cookie": query_or_default}
 
 
 @app.patch("/items/{item_id}", response_model=Item)
