@@ -238,6 +238,7 @@ sqlite_file_name = "database.db"
 
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 
+
 def authenticate_user(fake_db, username: str, password: str):
     user = get_user(fake_db, username)
     if not user:
@@ -267,8 +268,10 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
+
 
 def fake_decode_token(token):
     # This doesn't provide any security at all
@@ -315,9 +318,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
 def get_password_hash(password):
     return password_hash.hash(password)
 
+
 def get_session():
     with Session(engine) as session:
         yield session
+
 
 def get_user(db, username: str):
     if username in db:
@@ -405,10 +410,12 @@ async def add_process_time_header(request: Request, call_next):
     response.headers["X-Process-Time"] = str(process_time)
     return response
 
+
 @app.on_event("startup")
 def on_startup():
     create_db_and_tables()
-    
+
+
 @app.get("/")
 async def main():
     return {"message": "Hello World"}
@@ -435,6 +442,14 @@ async def create_file(
 @app.get("/files/{file_path:path}")
 async def read_file(file_path: str):
     return {"file_path": file_path}
+
+
+@app.post("/heroes/")
+def create_hero(hero: Hero, session: SessionDep) -> Hero:
+    session.add(hero)
+    session.commit()
+    session.refresh(hero)
+    return hero
 
 
 @app.post("/images/multiple/")
