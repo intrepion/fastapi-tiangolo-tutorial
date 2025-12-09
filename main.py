@@ -267,6 +267,8 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+def create_db_and_tables():
+    SQLModel.metadata.create_all(engine)
 
 def fake_decode_token(token):
     # This doesn't provide any security at all
