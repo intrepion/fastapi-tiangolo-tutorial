@@ -39,7 +39,7 @@ from jwt import InvalidTokenError
 import jwt
 from pwdlib import PasswordHash
 from pydantic import AfterValidator, BaseModel, EmailStr, Field, HttpUrl
-from sqlmodel import SQLModel, Session, create_engine
+from sqlmodel import SQLModel, Session, create_engine, select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from typing import Annotated, Any, List, Literal, Union
 
@@ -442,6 +442,16 @@ async def create_file(
 @app.get("/files/{file_path:path}")
 async def read_file(file_path: str):
     return {"file_path": file_path}
+
+
+@app.get("/heroes/")
+def read_heroes(
+    session: SessionDep,
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
+) -> list[Hero]:
+    heroes = session.exec(select(Hero).offset(offset).limit(limit)).all()
+    return heroes
 
 
 @app.post("/heroes/")
