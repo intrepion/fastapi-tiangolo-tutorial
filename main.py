@@ -405,7 +405,10 @@ async def add_process_time_header(request: Request, call_next):
     response.headers["X-Process-Time"] = str(process_time)
     return response
 
-
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
+    
 @app.get("/")
 async def main():
     return {"message": "Hello World"}
