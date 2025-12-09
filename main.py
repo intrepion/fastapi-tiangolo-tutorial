@@ -461,12 +461,12 @@ async def read_file(file_path: str):
     return {"file_path": file_path}
 
 
-@app.get("/heroes/")
+@app.get("/heroes/", response_model=list[HeroPublic])
 def read_heroes(
     session: SessionDep,
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
-) -> list[Hero]:
+):
     heroes = session.exec(select(Hero).offset(offset).limit(limit)).all()
     return heroes
 
