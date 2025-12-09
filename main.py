@@ -39,6 +39,7 @@ from jwt import InvalidTokenError
 import jwt
 from pwdlib import PasswordHash
 from pydantic import AfterValidator, BaseModel, EmailStr, Field, HttpUrl
+from sqlmodel import SQLModel
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from typing import Annotated, Any, List, Literal, Union
 
@@ -101,6 +102,13 @@ class FormData(BaseModel):
     username: str
     password: str
     model_config = {"extra": "forbid"}
+
+
+class Hero(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+    age: int | None = Field(default=None, index=True)
+    secret_name: str
 
 
 class Image(BaseModel):
