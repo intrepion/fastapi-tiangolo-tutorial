@@ -43,7 +43,7 @@ from typing import Annotated, Any, List, Literal, Union
 
 # to get a string like this run:
 # openssl rand -hex 32
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+SECRET_KEY = "bacc85acecce83fdc0c4ed1e3136e02173a3183190010f90f332fef38600e249"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
