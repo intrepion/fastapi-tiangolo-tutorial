@@ -104,11 +104,23 @@ class FormData(BaseModel):
     model_config = {"extra": "forbid"}
 
 
-class Hero(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+class HeroBase(SQLModel):
     name: str = Field(index=True)
     age: int | None = Field(default=None, index=True)
+
+
+class HeroCreate(HeroBase):
     secret_name: str
+
+
+class HeroPublic(HeroBase):
+    id: int
+
+
+class HeroUpdate(HeroBase):
+    name: str | None = None
+    age: int | None = None
+    secret_name: str | None = None
 
 
 class Image(BaseModel):
@@ -363,6 +375,11 @@ def verify_password(plain_password, hashed_password):
 async def verify_token(x_token: Annotated[str, Header()]):
     if x_token != "fake-super-secret-token":
         raise HTTPException(status_code=400, detail="X-Token header invalid")
+
+
+class Hero(HeroBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    secret_name: str
 
 
 CommonsDep = Annotated[dict, Depends(common_parameters)]
