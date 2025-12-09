@@ -39,7 +39,7 @@ from jwt import InvalidTokenError
 import jwt
 from pwdlib import PasswordHash
 from pydantic import AfterValidator, BaseModel, EmailStr, Field, HttpUrl
-from sqlmodel import SQLModel
+from sqlmodel import SQLModel, create_engine
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from typing import Annotated, Any, List, Literal, Union
 
@@ -194,10 +194,14 @@ class UserInDB(User):
     hashed_password: str
 
 
+connect_args = {"check_same_thread": False}
+
+
 data = {
     "plumbus": {"description": "Freshly pickled plumbus", "owner": "Morty"},
     "portal-gun": {"description": "Gun to create portals", "owner": "Rick"},
 }
+
 
 fake_db = {}
 
@@ -230,6 +234,9 @@ origins = [
 
 password_hash = PasswordHash.recommended()
 
+sqlite_file_name = "database.db"
+
+sqlite_url = f"sqlite:///{sqlite_file_name}"
 
 def authenticate_user(fake_db, username: str, password: str):
     user = get_user(fake_db, username)
@@ -351,6 +358,8 @@ async def verify_token(x_token: Annotated[str, Header()]):
 CommonsDep = Annotated[dict, Depends(common_parameters)]
 
 app = FastAPI(dependencies=[Depends(verify_token), Depends(verify_key)])
+
+engine = create_engine(sqlite_url, connect_args=connect_args)
 
 app.add_middleware(
     CORSMiddleware,
