@@ -39,7 +39,7 @@ from jwt import InvalidTokenError
 import jwt
 from pwdlib import PasswordHash
 from pydantic import AfterValidator, BaseModel, EmailStr, Field, HttpUrl
-from sqlmodel import SQLModel, create_engine
+from sqlmodel import SQLModel, Session, create_engine
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from typing import Annotated, Any, List, Literal, Union
 
@@ -315,6 +315,9 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
 def get_password_hash(password):
     return password_hash.hash(password)
 
+def get_session():
+    with Session(engine) as session:
+        yield session
 
 def get_user(db, username: str):
     if username in db:
@@ -358,6 +361,8 @@ async def verify_token(x_token: Annotated[str, Header()]):
 
 
 CommonsDep = Annotated[dict, Depends(common_parameters)]
+
+SessionDep = Annotated[Session, Depends(get_session)]
 
 app = FastAPI(dependencies=[Depends(verify_token), Depends(verify_key)])
 
