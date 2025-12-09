@@ -27,6 +27,7 @@ from fastapi.exception_handlers import (
     request_validation_exception_handler,
 )
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import (
     HTMLResponse,
     JSONResponse,
@@ -212,6 +213,13 @@ items = {
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+origins = [
+    "http://localhost.tiangolo.com",
+    "https://localhost.tiangolo.com",
+    "http://localhost",
+    "http://localhost:8080",
+]
+
 password_hash = PasswordHash.recommended()
 
 
@@ -336,6 +344,14 @@ CommonsDep = Annotated[dict, Depends(common_parameters)]
 
 app = FastAPI(dependencies=[Depends(verify_token), Depends(verify_key)])
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 async def get_current_active_user(
     current_user: Annotated[User, Depends(get_current_user)],
@@ -368,19 +384,7 @@ async def add_process_time_header(request: Request, call_next):
 
 @app.get("/")
 async def main():
-    content = """
-<body>
-<form action="/files/" enctype="multipart/form-data" method="post">
-<input name="files" type="file" multiple>
-<input type="submit">
-</form>
-<form action="/uploadfiles/" enctype="multipart/form-data" method="post">
-<input name="files" type="file" multiple>
-<input type="submit">
-</form>
-</body>
-    """
-    return HTMLResponse(content=content)
+    return {"message": "Hello World"}
 
 
 @app.get("/elements/", tags=["items"], deprecated=True)
