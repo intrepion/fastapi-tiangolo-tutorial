@@ -471,12 +471,13 @@ def read_heroes(
     return heroes
 
 
-@app.post("/heroes/")
-def create_hero(hero: Hero, session: SessionDep) -> Hero:
-    session.add(hero)
+@app.post("/heroes/", response_model=HeroPublic)
+def create_hero(hero: HeroCreate, session: SessionDep):
+    db_hero = Hero.model_validate(hero)
+    session.add(db_hero)
     session.commit()
-    session.refresh(hero)
-    return hero
+    session.refresh(db_hero)
+    return db_hero
 
 
 @app.delete("/heroes/{hero_id}")
