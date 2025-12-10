@@ -34,7 +34,7 @@ tags_metadata = [
     },
 ]
 
-app = FastAPI(openapi_tags=tags_metadata)
+app = FastAPI(openapi_url="/api/v1/openapi.json")
 
 
 def get_query(background_tasks: BackgroundTasks, q: str | None = None):
