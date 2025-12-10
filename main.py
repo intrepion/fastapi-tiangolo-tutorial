@@ -33,9 +33,10 @@ app = FastAPI(
     },
     license_info={
         "name": "Apache 2.0",
-        "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
+        "identifier": "MIT",
     },
 )
+
 
 def get_query(background_tasks: BackgroundTasks, q: str | None = None):
     if q:
@@ -70,9 +71,13 @@ app.include_router(
 async def root():
     return {"message": "Hello Bigger Applications!"}
 
+
 app.get("/items/")
+
+
 async def read_items():
     return [{"name": "Katana"}]
+
 
 @app.post("/send-notification/{email}")
 async def send_notification(
